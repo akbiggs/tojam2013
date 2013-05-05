@@ -21,6 +21,7 @@ namespace SwordsArt.Objects
             if (Vector2.Distance(room.Player.Center, Center) < 32)
             {
                 Explode(room);
+                room.Player.RestoreLife();
             }
 
             base.Update(room, gameTime);

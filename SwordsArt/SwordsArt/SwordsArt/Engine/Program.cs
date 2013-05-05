@@ -11,7 +11,7 @@ namespace SwordsArt
         /// </summary>
         static void Main(string[] args)
         {
-            using (GameEngine game = new GameEngine(800, 600, false))
+            using (GameEngine game = new GameEngine(626, 480, false))
             {
                 game.Run();
             }

@@ -117,6 +117,7 @@
     <Compile Include="Engine\ResourceManager.cs" />
     <Compile Include="Interface\Menus\MainMenu.cs" />
     <Compile Include="Interface\Menus\Menu.cs" />
+    <Compile Include="Interface\TimeText.cs" />
     <Compile Include="Interface\TitleScreen.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\ListHelper.cs" />
@@ -143,7 +144,7 @@
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\WickedEngine\TiledLib\TiledLib [Windows].csproj">
+    <ProjectReference Include="..\..\..\WickedEngine\WickedEngine\TiledLib\TiledLib [Windows].csproj">
       <Project>{5C081229-C1AA-4D40-A307-9264F7509158}</Project>
       <Name>TiledLib [Windows]</Name>
     </ProjectReference>

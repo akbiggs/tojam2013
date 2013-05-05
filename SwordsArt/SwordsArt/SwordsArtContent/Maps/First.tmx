@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="22" height="17" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" source="Basic.tsx"/>
+ <layer name="Tiles" width="22" height="17">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUDGfARACPguEHACQ4ABE=
+  </data>
+ </layer>
+ <objectgroup name="Objects" width="22" height="17">
+  <object name="Player" type="Player" x="224" y="288" width="32" height="32"/>
+  <object name="Target" type="Target" x="448" y="288" width="32" height="32"/>
+ </objectgroup>
+</map>

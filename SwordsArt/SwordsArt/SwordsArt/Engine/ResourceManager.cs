@@ -28,7 +28,7 @@ namespace SwordsArt.Engine
             };
         private static List<string> fontNames = new List<string>
             {
-
+                "TimeText"
             };
         private static List<string> soundNames = new List<string>
         {

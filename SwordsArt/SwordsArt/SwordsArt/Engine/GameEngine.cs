@@ -33,8 +33,10 @@ namespace SwordsArt.Engine
         /// </summary>
         List<String> roomNames = new List<String>
             {
+                "WallJump"
                 // TODO: Room names go here.
-                "Basic"
+                //"First",
+                //"MultiJump"
             };
 
         Intro intro;
@@ -199,13 +201,36 @@ namespace SwordsArt.Engine
         private Room NextRoom()
         {
             if (curRoom != null && curRoom.Failed)
-                return new Room(curRoom.Color, curRoom.Map, GraphicsDevice);
+                return new Room(curRoom.ColorDict, curRoom.Map, GraphicsDevice);
 
             if (!MoreLevels())
                 throw new InvalidOperationException();
 
             String nextRoomName = roomNames.Pop();
-            return new Room(Color.Black, ResourceManager.LoadMap(nextRoomName, Content), GraphicsDevice);
+            return new Room(GetNextColorDict(), ResourceManager.LoadMap(nextRoomName, Content), GraphicsDevice);
+        }
+
+        private Dictionary<string, Color> GetNextColorDict()
+        {
+            if (roomNames.Count >= 10)
+                return new Dictionary<string, Color>
+                {
+                    { "Player", Color.LightPink },
+                    { "Background", Color.Purple }
+                };
+
+            if (roomNames.Count >= 6)
+                return new Dictionary<string, Color>
+                {
+                    { "Player", Color.LightGreen },
+                    { "Background", Color.DarkGreen }
+                };
+
+            return new Dictionary<string, Color>
+            {
+                { "Player", Color.LightGreen },
+                { "Background", Color.DarkGreen }
+            };
         }
 
         /// <summary>

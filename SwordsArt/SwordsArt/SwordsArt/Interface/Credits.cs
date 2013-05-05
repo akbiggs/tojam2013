@@ -8,24 +8,24 @@ namespace SwordsArt.Interface
 {
     public class Credits : IController
     {
+        bool finished = false;
         public void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
-            throw new NotImplementedException();
+            Finish();
         }
 
         public void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
         {
-            throw new NotImplementedException();
         }
 
         public bool Finished
         {
-            get { throw new NotImplementedException(); }
+            get { return finished; }
         }
 
         public void Finish()
         {
-            throw new NotImplementedException();
+            finished = true;
         }
     }
 }

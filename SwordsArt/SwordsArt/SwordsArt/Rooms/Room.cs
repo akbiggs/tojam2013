@@ -110,7 +110,8 @@ namespace SwordsArt.Rooms
         public bool MenuRequested;
         private Camera camera;
         public bool ShouldPlayMusic = false;
-        
+
+        public Dictionary<String, Color> ColorDict;
         private Color color;
         public Color Color
         {
@@ -129,6 +130,7 @@ namespace SwordsArt.Rooms
             get { return tilesize; }
         }
 
+        private TimeText timeText;
         private bool firstDraw = true;
         private bool failed;
         private bool miniMapIsVisible;
@@ -156,9 +158,10 @@ namespace SwordsArt.Rooms
         /// <param name="color">The color of the map.</param>
         /// <param name="map">The map this room is based on.</param>
         /// <param name="gravity">The gravity of the room.</param>
-        public Room(Color color, Map map, GraphicsDevice device, float gravity = DEFAULT_GRAVITY)
+        public Room(Dictionary<String, Color> colorDict, Map map, GraphicsDevice device, float gravity = DEFAULT_GRAVITY)
         {
-            this.color = color;
+            this.ColorDict = colorDict;
+            this.color = colorDict["Background"];
             Gravity = gravity;
             this.map = map;
             miniMapIsVisible = GameEngine.ShouldShowMinimap;
@@ -187,7 +190,11 @@ namespace SwordsArt.Rooms
 
             /* Player */
             MapObject playerObj = map.FindObject((layer, obj) => obj.Name == PLAYER_OBJECT_NAME);
-            Add(new Player(new Vector2(playerObj.Bounds.X, playerObj.Bounds.Y), TimeSpan.FromSeconds(5)));
+            TimeSpan lifespan = TimeSpan.FromSeconds(5);
+            Player player = new Player(new Vector2(playerObj.Bounds.X, playerObj.Bounds.Y), lifespan);
+            Add(player);
+            player.Color = colorDict["Player"];
+            timeText = new TimeText(lifespan, Color.Blue, Color.Red);
 
             /* Targets */
             IEnumerable<MapObject> targetObjs = map.FindObjects((layer, obj) => obj.Type == "Target");
@@ -296,10 +303,15 @@ namespace SwordsArt.Rooms
                 if (GetDeepestSection(player) != curSection)
                     ChangeSection(newSection);
 
-                
-
                 // now that we've handled all those objects, update the camera to track whatever it wants to track
                 camera.Update(this, gameTime);
+
+                timeText.Update(player.lifeLeft);
+            }
+
+            if (targets.Count == 0)
+            {
+                Finish();
             }
         }
 
@@ -412,6 +424,14 @@ namespace SwordsArt.Rooms
                 target.Draw(spriteBatch);
             }
             if (!Failed) player.Draw(spriteBatch);
+
+            spriteBatch.End();
+
+            /* Render the interface regardless of camera */
+
+            spriteBatch.Begin();
+
+            timeText.Draw(spriteBatch);
 
             spriteBatch.End();
         }

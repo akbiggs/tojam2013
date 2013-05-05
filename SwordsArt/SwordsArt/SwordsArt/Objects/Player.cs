@@ -41,7 +41,7 @@ namespace SwordsArt.Objects
         private const float MAX_JUMP_SPEED_Y = 20f;
         private const float MAX_RED_JUMP_SPEED_Y = 40f;
 
-        private const float JUMP_SPEED = 16.75f;
+        private const float JUMP_SPEED = 15f;
         private const float RED_JUMP_SPEED = 26f;
         // minimum speed the player needs to collide with the ground to play landing animation
         private const float MIN_LAND_SPEED = 4f;
@@ -56,7 +56,7 @@ namespace SwordsArt.Objects
         private const int DEATH_BLOB_SPEED = 100;
         private const float DEATH_BLOB_SIZE = 20;
 
-        private const float ACCELERATION_X = 1.0f;
+        private const float ACCELERATION_X = 1.2f;
         private const float ACCELERATION_Y = 1.5f;
 
         private const float DECCELERATION_X = 3.0f;
@@ -122,6 +122,7 @@ namespace SwordsArt.Objects
         }
         private int deathTimer = 0;
         private int facing = RIGHT;
+        private TimeSpan initialLife;
         private bool Landing
         {
             get
@@ -141,6 +142,11 @@ namespace SwordsArt.Objects
         public int GravitySign
         {
             get { return UnderReverseGravity() ? -1 : 1; }
+        }
+
+        public TimeSpan lifeLeft
+        {
+            get { return lifetime; }
         }
 
         protected override AnimationSet curAnimation
@@ -192,7 +198,7 @@ namespace SwordsArt.Objects
             splatTimer.Elapsed += (sender, args) => canSplat = true;
             splatTimer.Start();
 
-            this.lifetime = lifetime;
+            this.lifetime = initialLife = lifetime;
         }
 
         public override void Update(Room room, GameTime gameTime)
@@ -461,6 +467,12 @@ namespace SwordsArt.Objects
         internal void Undo()
         {
             // TODO: Undo the player's color to the previous color.
+        }
+
+        internal void RestoreLife()
+        {
+            this.lifetime = initialLife;
+            canJump = true;
         }
     }
 }

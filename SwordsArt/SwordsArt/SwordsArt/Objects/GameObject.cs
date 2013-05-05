@@ -49,6 +49,7 @@ namespace SwordsArt.Objects
         public Color Color
         {
             get { return color; }
+            set { color = value; }
         }
 
         // TODO: Refactor this, very bad, pulling from another class
