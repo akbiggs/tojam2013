@@ -70,19 +70,19 @@ namespace SwordsArt.Objects
         public const int DEATH_TIME = 30;
 
         private const int WIDTH = 32;
-        private const int HEIGHT = 32;
+        private const int HEIGHT = 64;
 
         private const String IDLE = "Idle";
-        private const int IDLE_START_FRAME = 0;
-        private const int IDLE_NUM_FRAMES = 0;
+        private const int IDLE_START_FRAME = 4;
+        private const int IDLE_NUM_FRAMES = 3;
 
         private const String WALK = "Walk";
-        private const int WALK_START_FRAME = 0;
-        private const int WALK_NUM_FRAMES = 0;
+        private const int WALK_START_FRAME = 7;
+        private const int WALK_NUM_FRAMES = 6;
 
         private const String JUMP = "Jump";
         private const int JUMP_START_FRAME = 0;
-        private const int JUMP_NUM_FRAMES = 0;
+        private const int JUMP_NUM_FRAMES = 1;
 
         private const String SLIDE = "Slide";
         private const int SLIDE_START_FRAME = 0;
@@ -96,7 +96,7 @@ namespace SwordsArt.Objects
         private const int DIE_START_FRAME = 0;
         private const int DIE_NUM_FRAMES = 0;
 
-        private const int FRAME_DURATION = 8;
+        private const int FRAME_DURATION = 2;
 
         // how many frames the player takes a step 
         private const int FRAMES_PER_STEP = 4;
@@ -164,7 +164,7 @@ namespace SwordsArt.Objects
         public Player(Vector2 pos) :
             base(pos, Vector2.Zero, new Vector2(MAX_JUMP_SPEED_X, MAX_JUMP_SPEED_Y),
                  new Vector2(ACCELERATION_X, ACCELERATION_Y), new Vector2(DECCELERATION_X, DECCLERATION_Y),
-                 Color.Black, true, new Vector2(WIDTH, HEIGHT),
+                 Color.Green, true, new Vector2(WIDTH, HEIGHT),
                  new List<AnimationSet>
                      {
                          new AnimationSet(IDLE, ResourceManager.GetTexture("Player"), IDLE_NUM_FRAMES, 
@@ -415,28 +415,11 @@ namespace SwordsArt.Objects
             Rectangle frameRect = curAnimation.GetFrameRect();
             spriteBatch.Draw(curAnimation.GetTexture(),
                                 Position + new Vector2(0, 8),
-                                frameRect, Color.White,
+                                frameRect, Color,
                                 UnderReverseGravity() ? (float)Math.PI : 0,
                                 Vector2.Zero, new Vector2(size.X / frameRect.Width, size.Y / frameRect.Height),
                                 ShouldBeFlipped() ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                                 0);
-            if (!dying)
-            {
-                if (color != Color.Black && !curAnimation.IsCalled(DIE))
-                    spriteBatch.Draw(splatterAnimation.GetTexture(),
-                                     Position + new Vector2(0, 8),
-                                     frameRect, GetDrawColor(),
-                                     UnderReverseGravity() ? (float)Math.PI : 0,
-                        //ShouldBeRotated() ? rotation : 0,
-                                     Vector2.Zero, new Vector2(size.X / frameRect.Width, size.Y / frameRect.Height),
-                                     ShouldBeFlipped() ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                                     0);
-
-                //spriteBatch.Draw(splatterAnimation.GetTexture(),
-                //                 new Rectangle((int) position.X - SPLATTER_OFFSET_X, (int) position.Y - SPLATTER_OFFSET_Y,
-                //                               (int) (size.X*SPLATTER_RESIZE_X), (in  t) (size.Y*SPLATTER_RESIZE_Y)),
-                //                 splatterAnimation.GetFrameRect(), color);
-            }
         }
 
         private bool UnderReverseGravity()

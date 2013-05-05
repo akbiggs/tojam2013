@@ -139,7 +139,7 @@ namespace SwordsArt.Rooms
         // used for collisions to shove some things just outside of walls
         private float Epsilon
         {
-            get { return 2f; }
+            get { return 1f; }
         }
 
         private Vector2 StageBounds
@@ -357,7 +357,7 @@ namespace SwordsArt.Rooms
                 // flushing all the ink splatters onto the inkmap
                 spriteBatch.Begin();
 
-                foreach (Splatter splatter in splatterBuffer)
+                /*foreach (Splatter splatter in splatterBuffer)
                 {
                     RenderTarget2D newTarget;
                     if ((newTarget = inkMap.GetMap(splatter.Position)) != curRenderTarget && newTarget != null)
@@ -372,7 +372,7 @@ namespace SwordsArt.Rooms
                     }
 
                     splatter.Draw(spriteBatch);
-                }
+                }*/
 
                 splatterBuffer.Clear();
 

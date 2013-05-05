@@ -120,7 +120,7 @@ namespace SwordsArt.Engine
 
         internal static Texture2D GetRandomSplatter()
         {
-            throw new NotImplementedException();
+            return Pixel;
         }
 
         /// <summary>
