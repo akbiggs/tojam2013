@@ -29,5 +29,10 @@ namespace SwordsArt.Rooms
         {
             spr.Draw(ResourceManager.Pixel, new Rectangle(0, 0, width, height), color);
         }
+
+        internal void Update(GameTime gameTime)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

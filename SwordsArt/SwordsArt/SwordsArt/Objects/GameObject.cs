@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
-using SwordsArt.Objects;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Graphics;
+using SwordsArt.Engine;
+using SwordsArt.Rooms;
+using SwordsArt.Helpers;
 
-namespace SwordsArt.Rooms
+namespace SwordsArt.Objects
 {
     /// <summary>
     ///     Any object that should abide by the game's laws and physics.
@@ -48,7 +51,7 @@ namespace SwordsArt.Rooms
             get { return color; }
         }
 
-        // TODO: Refactor this, very bad
+        // TODO: Refactor this, very bad, pulling from another class
         public Direction Facing = Direction.None;
 
         protected virtual AnimationSet curAnimation { get; set; }
@@ -207,7 +210,7 @@ namespace SwordsArt.Rooms
         /// <returns>True if the objects are colliding, false otherwise.</returns>
         public virtual bool IsColliding(GameObject obj, out BBox collisionRegion)
         {
-            float collisionForgiveness = (this is Spout || obj is Spout) ? SPOUT_CFF : COLLISION_FORGIVENESS_FACTOR;
+            float collisionForgiveness = COLLISION_FORGIVENESS_FACTOR;
             collisionRegion = box.Intersect(obj.box);
 
             // only do forgiveness on the smaller box, a small enough box might not even be allowed
@@ -361,5 +364,14 @@ namespace SwordsArt.Rooms
         {
             return animations.Find(animset => animset.IsCalled(name));
         }
+    }
+
+    public enum Direction
+    {
+        None,
+        Left,
+        Right,
+        Up,
+        Down
     }
 }

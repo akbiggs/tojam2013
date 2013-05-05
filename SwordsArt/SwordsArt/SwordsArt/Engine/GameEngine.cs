@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using SwordsArt.Rooms;
+using Microsoft.Xna.Framework.Media;
+using SwordsArt.Interface;
+using SwordsArt.Helpers;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace SwordsArt.Engine
 {
@@ -27,19 +33,8 @@ namespace SwordsArt.Engine
         /// </summary>
         List<String> roomNames = new List<String>
             {
-                "Denial_1",
-                "Denial_2",
-                "Denial_3",
-                "Denial_4",
-                "Denial_5",
-                "Denial_6",
-                "Anger_1",
-                "Anger_2",
-                "Anger_3",
-                "Bargain_1",
-                "Depression_1",
-                "Depression_2",
-                "Acceptance_1",
+                // TODO: Room names go here.
+                "Basic"
             };
 
         Intro intro;
@@ -98,9 +93,7 @@ namespace SwordsArt.Engine
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load content from managers
-            ResourceManager.LoadTextures(Content);
-            ResourceManager.LoadFonts(Content);
-            ResourceManager.LoadSounds(Content);
+            ResourceManager.LoadContent(Content);
 
             // Initialize anything depending on loaded content.
             SetupState();
@@ -146,9 +139,8 @@ namespace SwordsArt.Engine
                 {
                     Room oldRoom = curRoom;
                     controller = curRoom = NextRoom();
-                    if (oldRoom == null || curRoom.Type != oldRoom.Type)
+                    if (oldRoom == null)
                     {
-                        ResourceManager.Stop();
                         curRoom.ShouldPlayMusic = true;
                     }
                 }
@@ -182,9 +174,8 @@ namespace SwordsArt.Engine
                 case GameState.Room:
                     Room oldRoom = curRoom;
                     curRoom = NextRoom();
-                    if (oldRoom == null || curRoom.Type != oldRoom.Type)
+                    if (oldRoom == null)
                     {
-                        ResourceManager.Stop();
                         curRoom.ShouldPlayMusic = true;
                     }
                     controller = curRoom;
@@ -208,34 +199,15 @@ namespace SwordsArt.Engine
         private Room NextRoom()
         {
             if (curRoom != null && curRoom.Failed)
-                return new Room(curRoom.Type, curRoom.Color, curRoom.Map, GraphicsDevice);
+                return new Room(curRoom.Color, curRoom.Map, GraphicsDevice);
 
             if (!MoreLevels())
                 throw new InvalidOperationException();
 
             String nextRoomName = roomNames.Pop();
-            return new Room(GetRoomType(nextRoomName), Color.Black, ResourceManager.LoadMap(nextRoomName, Content), GraphicsDevice);
+            return new Room(Color.Black, ResourceManager.LoadMap(nextRoomName, Content), GraphicsDevice);
         }
 
-        private RoomType GetRoomType(String roomName)
-        {
-            switch (roomName.Split('_')[0])
-            {
-                case "Denial":
-                    return RoomType.Denial;
-                case "Bargain":
-                    return RoomType.Bargain;
-                case "Anger":
-                    return RoomType.Anger;
-                case "Acceptance":
-                    return RoomType.Acceptance;
-                case "Depression":
-                    return RoomType.Depression;
-
-                default:
-                    throw new InvalidOperationException("Invalid room name.");
-            }
-        }
         /// <summary>
         /// Get the next state the game should be in.
         /// </summary>
@@ -297,7 +269,7 @@ namespace SwordsArt.Engine
                 controller.Draw(spriteBatch);
             // fill the screen with the fade color
             spriteBatch.Begin();
-            spriteBatch.Draw(ResourceManager.GetTexture("Misc_Pixel"), new Rectangle(0, 0, 4000, 4000), fade);
+            spriteBatch.Draw(ResourceManager.Pixel, new Rectangle(0, 0, 4000, 4000), fade);
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -327,25 +299,6 @@ namespace SwordsArt.Engine
         private bool MoreLevels()
         {
             return roomNames.Count > 0;
-        }
-
-        public static String GetTypeName(RoomType type)
-        {
-            switch (type)
-            {
-                case RoomType.Acceptance:
-                    return "Acceptance";
-                case RoomType.Anger:
-                    return "Anger";
-                case RoomType.Bargain:
-                    return "Bargain";
-                case RoomType.Denial:
-                    return "Denial";
-                case RoomType.Depression:
-                    return "Depression";
-                default:
-                    throw new InvalidOperationException("Invalid room type.");
-            }
         }
     }
 

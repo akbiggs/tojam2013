@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SwordsArt.Engine;
 
 namespace SwordsArt.Objects
 {
@@ -101,7 +102,7 @@ namespace SwordsArt.Objects
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(ResourceManager.GetTexture("Misc_Pixel"), Rectangle, new Color(255, 0, 0, 50));
+            spriteBatch.Draw(ResourceManager.Pixel, Rectangle, new Color(255, 0, 0, 50));
         }
 
         public Vector2 Center

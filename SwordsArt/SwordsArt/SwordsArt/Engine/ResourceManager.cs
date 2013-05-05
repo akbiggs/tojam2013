@@ -6,11 +6,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using TiledLib;
 
 namespace SwordsArt.Engine
 {
     public static class ResourceManager
     {
+        static string DIR_SEPARATOR = "/";
+
         private static Dictionary<string, Texture2D> texDic = new Dictionary<string, Texture2D>();
         private static Dictionary<string, SpriteFont> fontDic = new Dictionary<string, SpriteFont>();
         private static Dictionary<string, Color[,]> colDic = new Dictionary<string, Color[,]>();
@@ -113,6 +116,22 @@ namespace SwordsArt.Engine
                     colors2D[x, y] = colors1D[x + y * texture.Width];
 
             return colors2D;
+        }
+
+        internal static Texture2D GetRandomSplatter()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the map specified by the given name.
+        /// </summary>
+        /// <param name="name">The name of the map.</param>
+        /// <param name="Content">The content manager of the game.</param>
+        /// <returns>Return the map specified by the given name.</returns>
+        public static Map LoadMap(String name, ContentManager Content)
+        {
+            return Content.Load<Map>("Maps" + DIR_SEPARATOR + name);
         }
     }
 }

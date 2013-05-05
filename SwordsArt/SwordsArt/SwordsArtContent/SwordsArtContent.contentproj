@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Fonts\" />
+    <Folder Include="Maps\" />
     <Folder Include="Sounds\" />
   </ItemGroup>
   <ItemGroup>
