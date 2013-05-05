@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using SwordsArt.Rooms;
+using Microsoft.Xna.Framework.Media;
+using SwordsArt.Interface;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SwordsArt.Engine
 {
@@ -217,25 +221,6 @@ namespace SwordsArt.Engine
             return new Room(GetRoomType(nextRoomName), Color.Black, ResourceManager.LoadMap(nextRoomName, Content), GraphicsDevice);
         }
 
-        private RoomType GetRoomType(String roomName)
-        {
-            switch (roomName.Split('_')[0])
-            {
-                case "Denial":
-                    return RoomType.Denial;
-                case "Bargain":
-                    return RoomType.Bargain;
-                case "Anger":
-                    return RoomType.Anger;
-                case "Acceptance":
-                    return RoomType.Acceptance;
-                case "Depression":
-                    return RoomType.Depression;
-
-                default:
-                    throw new InvalidOperationException("Invalid room name.");
-            }
-        }
         /// <summary>
         /// Get the next state the game should be in.
         /// </summary>
@@ -327,25 +312,6 @@ namespace SwordsArt.Engine
         private bool MoreLevels()
         {
             return roomNames.Count > 0;
-        }
-
-        public static String GetTypeName(RoomType type)
-        {
-            switch (type)
-            {
-                case RoomType.Acceptance:
-                    return "Acceptance";
-                case RoomType.Anger:
-                    return "Anger";
-                case RoomType.Bargain:
-                    return "Bargain";
-                case RoomType.Denial:
-                    return "Denial";
-                case RoomType.Depression:
-                    return "Depression";
-                default:
-                    throw new InvalidOperationException("Invalid room type.");
-            }
         }
     }
 

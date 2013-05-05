@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using SwordsArt.Rooms;
+using SwordsArt.Objects;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SwordsArt.Engine
 {

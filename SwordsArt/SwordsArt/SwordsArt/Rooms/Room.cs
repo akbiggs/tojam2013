@@ -97,6 +97,7 @@ namespace SwordsArt.Rooms
             get { return width; }
         }
 
+        private InkMap inkMap;
         private readonly Map map;
         public Map Map
         {
@@ -133,6 +134,7 @@ namespace SwordsArt.Rooms
         private bool miniMapIsVisible;
         private const string SPIKE_OBJECT_NAME = "Spikes";
         private const string WAVE_OBJECT_NAME = "Wave";
+        private List<Splatter> splatterBuffer;
 
         // used for collisions to shove some things just outside of walls
         private float Epsilon
@@ -173,8 +175,8 @@ namespace SwordsArt.Rooms
 
             tiles = new Tile[map.HeightInTiles, map.WidthInTiles];
             TileGrid grid = ((TileLayer)map.GetLayer(TILE_LAYER_NAME)).Tiles;
-            for (int y = 0; y < map.Height; y++)
-                for (int x = 0; x < map.Width; x++)
+            for (int y = 0; y < map.HeightInTiles; y++)
+                for (int x = 0; x < map.WidthInTiles; x++)
                 {
                     TiledLib.Tile tile = grid[x, y];
                     tiles[y, x] = new Tile(new Vector2(x * tilesize.X, y * tilesize.Y), tilesize, tile, Color.White);
@@ -242,7 +244,7 @@ namespace SwordsArt.Rooms
                 GameEngine.FadeOut(Color.Black, FadeSpeed.Fast);
             else
             {
-                GameEngine.FadeOut(Color.White, Type == RoomType.Acceptance ? FadeSpeed.Slow : FadeSpeed.Fast);
+                GameEngine.FadeOut(Color.White, FadeSpeed.Fast);
             }
             finished = true;
         }
@@ -271,79 +273,11 @@ namespace SwordsArt.Rooms
 
             if (!Failed)
             {
-                // Update all objects in the room.
-                if (portals.Find((portal) => portal.Symbolizing) == null)
-                    player.Update(this, gameTime);
-                foreach (Portal portal in portals)
-                {
-                    portal.Update(this, gameTime);
-                    if (portal.Unlocked)
-                        Finish();
-                }
-                foreach (InkGenerator generator in generators)
-                    generator.Update(this, gameTime);
-                foreach (WaveGenerator generator in waveGenerators)
-                    generator.Update(this, gameTime);
-                foreach (SpoutGenerator generator in spoutGenerators)
-                    generator.Update(this, gameTime);
-                foreach (InkBlob blob in blobs)
-                    blob.Update(this, gameTime);
-                foreach (Wave wave in waves)
-                    wave.Update(this, gameTime);
-                foreach (Spout spout in spouts)
-                    spout.Update(this, gameTime);
+                // update all objects in the room
+                player.Update(this, gameTime);
 
                 // handle any collisions with the player
                 BBox collision;
-                foreach (Portal portal in portals)
-                    if (portal.IsColliding(player, out collision))
-                    {
-                        player.CollideWithObject(portal, this, collision);
-                        portal.CollideWithObject(player, this, collision);
-                    }
-
-                foreach (InkGenerator generator in generators)
-                {
-                    if (generator.IsColliding(player, out collision))
-                    {
-                        player.CollideWithObject(generator, this, collision);
-                        generator.CollideWithObject(player, this, collision);
-                    }
-                }
-                foreach (InkBlob blob in blobs)
-                {
-                    if (blob.IsColliding(player, out collision))
-                    {
-                        player.CollideWithObject(blob, this, collision);
-                        blob.CollideWithObject(player, this, collision);
-                    }
-                }
-
-                foreach (Spike spike in spikes)
-                {
-                    if (spike.IsColliding(player, out collision))
-                    {
-                        player.CollideWithObject(spike, this, collision);
-                        spike.CollideWithObject(player, this, collision);
-                    }
-                }
-
-                collision = new BBox(0, 0, 0, 0);
-                foreach (Wave wave in waves)
-                {
-                    if (player.IsColliding(wave, out collision))
-                    {
-                        player.CollideWithObject(wave, this, collision);
-                        wave.CollideWithObject(player, this, collision);
-                    }
-                }
-
-                foreach (Spout spout in spouts)
-                    if (spout.ShouldDamage && player.IsColliding(spout, out collision))
-                    {
-                        player.CollideWithObject(spout, this, collision);
-                        spout.CollideWithObject(player, this, collision);
-                    }
 
                 // check to see if we entered a new section of the room
                 Section newSection = GetDeepestSection(player);
@@ -352,20 +286,6 @@ namespace SwordsArt.Rooms
 
                 // now that we've handled all those objects, update the camera to track whatever it wants to track
                 camera.Update(this, gameTime);
-
-                inkMap.Update();
-                miniMap.Update(this, gameTime);
-                toolbar.Update(gameTime);
-
-                if (toolbar.IsSelected(NAVIGATION))
-                {
-                    miniMapIsVisible = !miniMapIsVisible;
-                    GameEngine.ShouldShowMinimap = miniMapIsVisible;
-                }
-                if (toolbar.IsSelected(UNDO))
-                {
-                    player.Die(this);
-                }
             }
         }
 
@@ -474,26 +394,8 @@ namespace SwordsArt.Rooms
             map.Draw(spriteBatch);
             
             if (!Failed) player.Draw(spriteBatch);
-            foreach (InkBlob blob in blobs)
-                blob.Draw(spriteBatch);
-            foreach (Wave wave in waves)
-                wave.Draw(spriteBatch);
-            foreach (Spout spout in spouts)
-                spout.Draw(spriteBatch);
-            foreach (Spike spike in spikes)
-                spike.Draw(spriteBatch);
 
             spriteBatch.End();
-
-            // ...and now do the interface (unless we're in the last stage of the game
-            if (Type != RoomType.Acceptance)
-            {
-                spriteBatch.Begin();
-                if (miniMapIsVisible)
-                    miniMap.Draw(spriteBatch);
-                toolbar.Draw(spriteBatch);
-                spriteBatch.End();
-            }
         }
 
 
@@ -513,13 +415,7 @@ namespace SwordsArt.Rooms
                     Section curSection = GetDeepestSection(player);
                     float zoomLevel = curSection == null ? DEFAULT_ZOOM : curSection.ZoomLevel;
                     camera = new Camera(player, width, height, zoomLevel);
-                    miniMap.Mappings.Add(obj, ResourceManager.GetTexture("Player_Icon"));
                 }
-                }
-                else if (obj is Spout)
-                    spouts.Add((Spout)obj);
-                else if (obj is Barrier)
-                    barriers.Add((Barrier)obj);
             }
 
             toAdd.Clear();
@@ -536,22 +432,6 @@ namespace SwordsArt.Rooms
             {
                 if (obj is Player)
                     player = null;
-                else if (obj is Portal)
-                    portals.Remove((Portal)obj);
-                else if (obj is InkGenerator)
-                    generators.Remove((InkGenerator)obj);
-                else if (obj is InkBlob)
-                    blobs.Remove((InkBlob)obj);
-                else if (obj is WaveGenerator)
-                    waveGenerators.Remove((WaveGenerator)obj);
-                else if (obj is Wave)
-                    waves.Remove((Wave)obj);
-                else if (obj is SpoutGenerator)
-                    spoutGenerators.Remove((SpoutGenerator)obj);
-                else if (obj is Spout)
-                    spouts.Remove((Spout)obj);
-                else if (obj is Barrier)
-                    barriers.Remove((Barrier)obj);
             }
 
             toRemove.Clear();

@@ -8,6 +8,8 @@ using SwordsArt.Engine;
 using SwordsArt.Helpers;
 using Microsoft.Xna.Framework.Input;
 using System.Timers;
+using SwordsArt.Rooms;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SwordsArt.Objects
 {
@@ -346,36 +348,7 @@ namespace SwordsArt.Objects
         {
             if (!dying && obj.IsCollidable)
             {
-                // water is special, kills player
-                if (obj is WaterBlob || (obj is Wave && obj.Color == Color.LightBlue) ||
-                    (obj is Spout && obj.Color == Color.LightBlue && ShouldSpoutCollide(obj)))
-
-                    Die(room);
-                else if (obj is InkBlob || obj is Wave || obj is Spout && ShouldSpoutCollide(obj))
-                {
-                    if (obj.Color == Color.Black)
-                        color = Color.Black;
-                    else
-                        color = color.Combine(obj.Color);
-                }
-                if (obj is Portal)
-                    if (color == obj.Color)
-                    {
-                        if (room.Portals.Count > 1 && obj != room.CorrectPortal)
-                            room.Failed = true;
-                        //room.Finish();
-                    }
-                if (obj as Spike != null)
-                {
-                    // only punish the player if they're moving towards the spikes, too unforgiving otherwise
-                    if ((obj.Color == Color.White || obj.Color != Color) && (obj.Facing == Direction.Left && Velocity.X >= 0 ||
-                        obj.Facing == Direction.Right && Velocity.X <= 0 ||
-                        obj.Facing == Direction.Up && Velocity.Y >= 0 ||
-                        obj.Facing == Direction.Down && Velocity.Y <= 0) && collision.Area >= box.Area / 7)
-                        //&& Math.Max(MathHelper.Distance(Box.Center.X, obj.Box.Center.X), 
-                        //    MathHelper.Distance(Box.Center.Y, obj.Box.Center.Y)) < 20f)
-                        Die(room);
-                }
+                // TODO: Die when we need to.
             }
 
             base.CollideWithObject(obj, room, collision);
