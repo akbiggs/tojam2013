@@ -142,7 +142,7 @@
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\otherstuff\WickedEngine\TiledLib\TiledLib [Windows].csproj">
+    <ProjectReference Include="..\..\..\WickedEngine\WickedEngine\TiledLib\TiledLib [Windows].csproj">
       <Project>{5C081229-C1AA-4D40-A307-9264F7509158}</Project>
       <Name>TiledLib [Windows]</Name>
     </ProjectReference>

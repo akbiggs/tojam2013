@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwordsArt", "SwordsArt\Swor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwordsArtContent", "SwordsArt\SwordsArtContent\SwordsArtContent.contentproj", "{B2959B3F-A712-43A6-B558-214E8CA454BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledLib [Windows]", "..\otherstuff\WickedEngine\TiledLib\TiledLib [Windows].csproj", "{5C081229-C1AA-4D40-A307-9264F7509158}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledLib [Windows]", "..\WickedEngine\WickedEngine\TiledLib\TiledLib [Windows].csproj", "{5C081229-C1AA-4D40-A307-9264F7509158}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledPipelineExtensions", "..\otherstuff\WickedEngine\TiledPipelineExtensions\TiledPipelineExtensions.csproj", "{3AC723BC-8AE2-4ED8-ABE2-DA3532E87118}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledPipelineExtensions", "..\WickedEngine\WickedEngine\TiledPipelineExtensions\TiledPipelineExtensions.csproj", "{3AC723BC-8AE2-4ED8-ABE2-DA3532E87118}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
