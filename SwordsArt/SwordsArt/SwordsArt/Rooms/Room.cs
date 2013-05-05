@@ -135,6 +135,7 @@ namespace SwordsArt.Rooms
         private const string SPIKE_OBJECT_NAME = "Spikes";
         private const string WAVE_OBJECT_NAME = "Wave";
         private List<Splatter> splatterBuffer = new List<Splatter>();
+        private List<Target> targets = new List<Target>();
 
         // used for collisions to shove some things just outside of walls
         private float Epsilon
@@ -186,7 +187,15 @@ namespace SwordsArt.Rooms
 
             /* Player */
             MapObject playerObj = map.FindObject((layer, obj) => obj.Name == PLAYER_OBJECT_NAME);
-            Add(new Player(new Vector2(playerObj.Bounds.X, playerObj.Bounds.Y)));
+            Add(new Player(new Vector2(playerObj.Bounds.X, playerObj.Bounds.Y), TimeSpan.FromSeconds(5)));
+
+            /* Targets */
+            IEnumerable<MapObject> targetObjs = map.FindObjects((layer, obj) => obj.Type == "Target");
+            foreach (MapObject targetObj in targetObjs)
+            {
+                Vector2 targetPos = new Vector2(targetObj.Bounds.Left, targetObj.Bounds.Top);
+                targets.Add(new Target(targetPos, Color.Blue));
+            }
 
             /* Sections */
             IEnumerable<MapObject> sectionObjs = map.FindObjects((layer, obj) => obj.Type == SECTION_OBJECT_NAME);
@@ -269,14 +278,15 @@ namespace SwordsArt.Rooms
             background.Update(gameTime);
 
             if (player == null)
-            {
                 Fail();
-            }
 
             if (!Failed)
             {
                 // update all objects in the room
                 player.Update(this, gameTime);
+
+                foreach (Target target in targets)
+                    target.Update(this, gameTime);
 
                 // handle any collisions with the player
                 BBox collision;
@@ -285,6 +295,8 @@ namespace SwordsArt.Rooms
                 Section newSection = GetDeepestSection(player);
                 if (GetDeepestSection(player) != curSection)
                     ChangeSection(newSection);
+
+                
 
                 // now that we've handled all those objects, update the camera to track whatever it wants to track
                 camera.Update(this, gameTime);
@@ -394,7 +406,11 @@ namespace SwordsArt.Rooms
             background.Draw(spriteBatch);
 
             map.Draw(spriteBatch);
-            
+
+            foreach (Target target in targets)
+            {
+                target.Draw(spriteBatch);
+            }
             if (!Failed) player.Draw(spriteBatch);
 
             spriteBatch.End();
@@ -434,6 +450,11 @@ namespace SwordsArt.Rooms
             {
                 if (obj is Player)
                     player = null;
+
+                if (obj is Target)
+                {
+                    targets.Remove((Target) obj);
+                }
             }
 
             toRemove.Clear();

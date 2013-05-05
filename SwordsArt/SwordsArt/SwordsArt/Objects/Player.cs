@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using SwordsArt.Objects;
@@ -73,16 +74,16 @@ namespace SwordsArt.Objects
         private const int HEIGHT = 64;
 
         private const String IDLE = "Idle";
-        private const int IDLE_START_FRAME = 4;
-        private const int IDLE_NUM_FRAMES = 3;
+        private const int IDLE_START_FRAME = 0;
+        private const int IDLE_NUM_FRAMES = 0;
 
         private const String WALK = "Walk";
-        private const int WALK_START_FRAME = 7;
-        private const int WALK_NUM_FRAMES = 6;
+        private const int WALK_START_FRAME = 0;
+        private const int WALK_NUM_FRAMES = 0;
 
         private const String JUMP = "Jump";
         private const int JUMP_START_FRAME = 0;
-        private const int JUMP_NUM_FRAMES = 1;
+        private const int JUMP_NUM_FRAMES = 0;
 
         private const String SLIDE = "Slide";
         private const int SLIDE_START_FRAME = 0;
@@ -135,6 +136,7 @@ namespace SwordsArt.Objects
 
         private bool canSplat = true;
         private Timer splatTimer;
+        private TimeSpan lifetime;
 
         public int GravitySign
         {
@@ -161,23 +163,23 @@ namespace SwordsArt.Objects
 
         #endregion
 
-        public Player(Vector2 pos) :
+        public Player(Vector2 pos, TimeSpan lifetime) :
             base(pos, Vector2.Zero, new Vector2(MAX_JUMP_SPEED_X, MAX_JUMP_SPEED_Y),
                  new Vector2(ACCELERATION_X, ACCELERATION_Y), new Vector2(DECCELERATION_X, DECCLERATION_Y),
-                 Color.Green, true, new Vector2(WIDTH, HEIGHT),
+                 Color.LightGreen, true, new Vector2(WIDTH, HEIGHT),
                  new List<AnimationSet>
                      {
-                         new AnimationSet(IDLE, ResourceManager.GetTexture("Player"), IDLE_NUM_FRAMES, 
+                         new AnimationSet(IDLE, ResourceManager.GetTexture("Player_Basic"), IDLE_NUM_FRAMES, 
                              IDLE_FRAME_WIDTH, FRAME_DURATION),
-                         new AnimationSet(WALK, ResourceManager.GetTexture("Player"), WALK_NUM_FRAMES, 
+                         new AnimationSet(WALK, ResourceManager.GetTexture("Player_Basic"), WALK_NUM_FRAMES, 
                              WALK_FRAME_WIDTH, FRAME_DURATION, true, WALK_START_FRAME),
-                         new AnimationSet(JUMP, ResourceManager.GetTexture("Player"), JUMP_NUM_FRAMES,
+                         new AnimationSet(JUMP, ResourceManager.GetTexture("Player_Basic"), JUMP_NUM_FRAMES,
                              JUMP_FRAME_WIDTH, FRAME_DURATION, false, JUMP_START_FRAME),
-                         new AnimationSet(SLIDE, ResourceManager.GetTexture("Player"), SLIDE_NUM_FRAMES, 
+                         new AnimationSet(SLIDE, ResourceManager.GetTexture("Player_Basic"), SLIDE_NUM_FRAMES, 
                              SLIDE_FRAME_WIDTH, FRAME_DURATION, true, SLIDE_START_FRAME),
-                         new AnimationSet(LAND, ResourceManager.GetTexture("Player"), LAND_NUM_FRAMES,
+                         new AnimationSet(LAND, ResourceManager.GetTexture("Player_Basic"), LAND_NUM_FRAMES,
                              LAND_FRAME_WIDTH, LAND_DURATION, false, LAND_START_FRAME),
-                         new AnimationSet(DIE, ResourceManager.GetTexture("Player"), DIE_NUM_FRAMES, JUMP_FRAME_WIDTH, FRAME_DURATION,
+                         new AnimationSet(DIE, ResourceManager.GetTexture("Player_Basic"), DIE_NUM_FRAMES, JUMP_FRAME_WIDTH, FRAME_DURATION,
                              false, DIE_START_FRAME)
                      },
                  JUMP, 0)
@@ -189,6 +191,8 @@ namespace SwordsArt.Objects
             splatTimer = new Timer { AutoReset = true, Interval = SPLAT_INTERVAL };
             splatTimer.Elapsed += (sender, args) => canSplat = true;
             splatTimer.Start();
+
+            this.lifetime = lifetime;
         }
 
         public override void Update(Room room, GameTime gameTime)
@@ -238,6 +242,10 @@ namespace SwordsArt.Objects
                 //    velocity.Y = MAX_BLUE_FALL_SPEED * GravitySign;
 
                 rotation = velocity.ToAngle();
+                lifetime = lifetime.Subtract(gameTime.ElapsedGameTime);
+                if (lifetime.Ticks <= 0)
+                    Die(room);
+                Debug.Print(lifetime.Ticks.ToString());
             }
             else
             {
@@ -400,7 +408,8 @@ namespace SwordsArt.Objects
         {
             room.Splat(Center, size * 8, color, Vector2.One);
             dying = true;
-            ChangeAnimation(DIE);
+            room.Remove(this);
+            //ChangeAnimation(DIE);
         }
 
         protected override void ChangeAnimation(string name)

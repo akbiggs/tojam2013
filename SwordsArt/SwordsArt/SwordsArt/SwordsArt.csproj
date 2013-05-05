@@ -135,6 +135,7 @@
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="Rooms\Section.cs" />
     <Compile Include="Objects\Splatter.cs" />
+    <Compile Include="Objects\Target.cs" />
     <Compile Include="Rooms\Tile.cs" />
   </ItemGroup>
   <ItemGroup>
