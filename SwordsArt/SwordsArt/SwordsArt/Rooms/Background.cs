@@ -32,7 +32,6 @@ namespace SwordsArt.Rooms
 
         internal void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
         }
     }
 }

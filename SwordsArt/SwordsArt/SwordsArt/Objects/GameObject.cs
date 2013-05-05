@@ -86,7 +86,8 @@ namespace SwordsArt.Objects
 
         public virtual Vector2 BoxOffset
         {
-            get { return new Vector2(BBOX_OFFSET_X * Size.X, BBOX_OFFSET_Y * Size.Y); }
+            get { return Vector2.Zero; }
+            //get { return new Vector2(BBOX_OFFSET_X, BBOX_OFFSET_Y * Size.Y); }
         }
 
         public virtual bool IsCollidable
@@ -132,6 +133,7 @@ namespace SwordsArt.Objects
 
             this.rotation = rotation;
 
+            //box = new BBox((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
             box = new BBox((int)(Position.X + BBOX_OFFSET_X * Size.X), (int)(Position.Y + BBOX_OFFSET_Y * Size.Y),
                 (int)((1 - 2 * BBOX_OFFSET_X) * Size.X), (int)((1 - 2 * BBOX_OFFSET_Y) * Size.Y));
         }
@@ -173,7 +175,6 @@ namespace SwordsArt.Objects
             if (velocity.Y > 0 && hasCollidedWithCeiling)
             {
                 hasCollidedWithCeiling = false;
-                Console.WriteLine("Done ceiling colliding!");
             }
             curAnimation.Update();
         }
@@ -275,8 +276,8 @@ namespace SwordsArt.Objects
 
         private void UpdateBounds(Room room, bool collidable = true)
         {
-            minPosition = room.GetMinPosition(box.Position, box.Size, color, collidable);
-            maxPosition = room.GetMaxPosition(box.Position, box.Size, color, collidable);
+            minPosition = room.GetMinPosition(Position, Size, color, collidable);
+            maxPosition = room.GetMaxPosition(Position, Size, color, collidable);
         }
 
         private void ChangeXPosition(Room room)

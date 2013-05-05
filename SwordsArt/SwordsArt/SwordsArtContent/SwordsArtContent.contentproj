@@ -43,12 +43,31 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Fonts\" />
-    <Folder Include="Maps\" />
     <Folder Include="Sounds\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Images\pixel.png">
       <Name>pixel</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Maps\Basic.tmx">
+      <Name>Basic</Name>
+      <Importer>TmxImporter</Importer>
+      <Processor>TmxProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\WickedEngine\WickedEngine\TiledPipelineExtensions\TiledPipelineExtensions.csproj">
+      <Project>{3AC723BC-8AE2-4ED8-ABE2-DA3532E87118}</Project>
+      <Name>TiledPipelineExtensions</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Images\Player.png">
+      <Name>Player</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

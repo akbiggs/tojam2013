@@ -55,46 +55,46 @@ namespace SwordsArt.Objects
         private const int DEATH_BLOB_SPEED = 100;
         private const float DEATH_BLOB_SIZE = 20;
 
-        private const float ACCELERATION_X = 1.2f;
+        private const float ACCELERATION_X = 1.0f;
         private const float ACCELERATION_Y = 1.5f;
 
         private const float DECCELERATION_X = 3.0f;
         private const float DECCLERATION_Y = 0f;
 
-        private const int IDLE_FRAME_WIDTH = 100;
-        private const int WALK_FRAME_WIDTH = 100;
-        private const int JUMP_FRAME_WIDTH = 100;
-        private const int SLIDE_FRAME_WIDTH = 100;
-        private const int LAND_FRAME_WIDTH = 100;
+        private const int IDLE_FRAME_WIDTH = 32;
+        private const int WALK_FRAME_WIDTH = 32;
+        private const int JUMP_FRAME_WIDTH = 32;
+        private const int SLIDE_FRAME_WIDTH = 32;
+        private const int LAND_FRAME_WIDTH = 32;
 
         public const int DEATH_TIME = 30;
 
-        private const int WIDTH = 130;
-        private const int HEIGHT = 130;
+        private const int WIDTH = 32;
+        private const int HEIGHT = 32;
 
         private const String IDLE = "Idle";
         private const int IDLE_START_FRAME = 0;
-        private const int IDLE_NUM_FRAMES = 1;
+        private const int IDLE_NUM_FRAMES = 0;
 
         private const String WALK = "Walk";
-        private const int WALK_START_FRAME = 4;
-        private const int WALK_NUM_FRAMES = 8;
+        private const int WALK_START_FRAME = 0;
+        private const int WALK_NUM_FRAMES = 0;
 
         private const String JUMP = "Jump";
-        private const int JUMP_START_FRAME = 1;
-        private const int JUMP_NUM_FRAMES = 1;
+        private const int JUMP_START_FRAME = 0;
+        private const int JUMP_NUM_FRAMES = 0;
 
         private const String SLIDE = "Slide";
-        private const int SLIDE_START_FRAME = 3;
-        private const int SLIDE_NUM_FRAMES = 1;
+        private const int SLIDE_START_FRAME = 0;
+        private const int SLIDE_NUM_FRAMES = 0;
 
         private const String LAND = "Land";
-        private const int LAND_START_FRAME = 2;
-        private const int LAND_NUM_FRAMES = 1;
+        private const int LAND_START_FRAME = 0;
+        private const int LAND_NUM_FRAMES = 0;
 
         private const String DIE = "Die";
-        private const int DIE_START_FRAME = 12;
-        private const int DIE_NUM_FRAMES = 6;
+        private const int DIE_START_FRAME = 0;
+        private const int DIE_NUM_FRAMES = 0;
 
         private const int FRAME_DURATION = 8;
 
@@ -167,27 +167,17 @@ namespace SwordsArt.Objects
                  Color.Black, true, new Vector2(WIDTH, HEIGHT),
                  new List<AnimationSet>
                      {
-                         new AnimationSet(IDLE, ResourceManager.GetTexture("Player_Main"), IDLE_NUM_FRAMES, 
+                         new AnimationSet(IDLE, ResourceManager.GetTexture("Player"), IDLE_NUM_FRAMES, 
                              IDLE_FRAME_WIDTH, FRAME_DURATION),
-                         new AnimationSet(IDLE + SPLATTER_TAG, ResourceManager.GetTexture("Player_Main_Splatter"), IDLE_NUM_FRAMES,
-                             IDLE_FRAME_WIDTH, FRAME_DURATION),
-                         new AnimationSet(WALK, ResourceManager.GetTexture("Player_Main"), WALK_NUM_FRAMES, 
+                         new AnimationSet(WALK, ResourceManager.GetTexture("Player"), WALK_NUM_FRAMES, 
                              WALK_FRAME_WIDTH, FRAME_DURATION, true, WALK_START_FRAME),
-                         new AnimationSet(WALK + SPLATTER_TAG, ResourceManager.GetTexture("Player_Main_Splatter"), WALK_NUM_FRAMES,
-                             WALK_FRAME_WIDTH, FRAME_DURATION, true, WALK_START_FRAME),
-                         new AnimationSet(JUMP, ResourceManager.GetTexture("Player_Main"), JUMP_NUM_FRAMES,
+                         new AnimationSet(JUMP, ResourceManager.GetTexture("Player"), JUMP_NUM_FRAMES,
                              JUMP_FRAME_WIDTH, FRAME_DURATION, false, JUMP_START_FRAME),
-                         new AnimationSet(JUMP + SPLATTER_TAG, ResourceManager.GetTexture("Player_Main_Splatter"), JUMP_NUM_FRAMES,
-                             JUMP_FRAME_WIDTH, FRAME_DURATION, false, JUMP_START_FRAME),
-                         new AnimationSet(SLIDE, ResourceManager.GetTexture("Player_Main"), SLIDE_NUM_FRAMES, 
+                         new AnimationSet(SLIDE, ResourceManager.GetTexture("Player"), SLIDE_NUM_FRAMES, 
                              SLIDE_FRAME_WIDTH, FRAME_DURATION, true, SLIDE_START_FRAME),
-                         new AnimationSet(SLIDE + SPLATTER_TAG, ResourceManager.GetTexture("Player_Main_Splatter"), SLIDE_NUM_FRAMES,
-                             SLIDE_FRAME_WIDTH, FRAME_DURATION, true, SLIDE_START_FRAME),
-                         new AnimationSet(LAND, ResourceManager.GetTexture("Player_Main"), LAND_NUM_FRAMES,
+                         new AnimationSet(LAND, ResourceManager.GetTexture("Player"), LAND_NUM_FRAMES,
                              LAND_FRAME_WIDTH, LAND_DURATION, false, LAND_START_FRAME),
-                         new AnimationSet(LAND + SPLATTER_TAG, ResourceManager.GetTexture("Player_Main_Splatter"), LAND_NUM_FRAMES,
-                             LAND_FRAME_WIDTH, LAND_DURATION, false, LAND_START_FRAME),
-                         new AnimationSet(DIE, ResourceManager.GetTexture("Player_Main"), DIE_NUM_FRAMES, JUMP_FRAME_WIDTH, FRAME_DURATION,
+                         new AnimationSet(DIE, ResourceManager.GetTexture("Player"), DIE_NUM_FRAMES, JUMP_FRAME_WIDTH, FRAME_DURATION,
                              false, DIE_START_FRAME)
                      },
                  JUMP, 0)
@@ -199,8 +189,6 @@ namespace SwordsArt.Objects
             splatTimer = new Timer { AutoReset = true, Interval = SPLAT_INTERVAL };
             splatTimer.Elapsed += (sender, args) => canSplat = true;
             splatTimer.Start();
-
-            splatterAnimation = animations.Find((anim) => anim.IsCalled(curAnimation.Name + SPLATTER_TAG));
         }
 
         public override void Update(Room room, GameTime gameTime)
@@ -208,8 +196,6 @@ namespace SwordsArt.Objects
             base.Update(room, gameTime);
             if (!dying)
             {
-                splatterAnimation.Update();
-
                 if (Velocity.Y == 0)
                     maxSpeed.Y = MAX_SPEED_Y;
                 if (canJump && jumpKeys.Any(Input.IsKeyDown))
@@ -421,12 +407,6 @@ namespace SwordsArt.Objects
         {
             AnimationSet oldAnimation = curAnimation;
             base.ChangeAnimation(name);
-            // only reset the splatter animation if the animation changed
-            if (oldAnimation != curAnimation && !curAnimation.IsCalled(DIE))
-            {
-                splatterAnimation = animations.Find((anim) => anim.IsCalled(name + SPLATTER_TAG));
-                splatterAnimation.Reset();
-            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)

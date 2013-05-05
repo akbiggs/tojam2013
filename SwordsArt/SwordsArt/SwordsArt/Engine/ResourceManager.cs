@@ -24,7 +24,7 @@ namespace SwordsArt.Engine
 
         private static List<string> textureNames = new List<string>
             {
-                "pixel"
+                "pixel", "Player"
             };
         private static List<string> fontNames = new List<string>
             {

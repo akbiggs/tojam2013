@@ -134,17 +134,17 @@ namespace SwordsArt.Rooms
         private bool miniMapIsVisible;
         private const string SPIKE_OBJECT_NAME = "Spikes";
         private const string WAVE_OBJECT_NAME = "Wave";
-        private List<Splatter> splatterBuffer;
+        private List<Splatter> splatterBuffer = new List<Splatter>();
 
         // used for collisions to shove some things just outside of walls
         private float Epsilon
         {
-            get { return 0.001f; }
+            get { return 2f; }
         }
 
         private Vector2 StageBounds
         {
-            get { return new Vector2(width - Epsilon * 2, height - Epsilon); }
+            get { return new Vector2(width - Epsilon/4, height - Epsilon/2); }
         }
 
         #endregion
@@ -223,6 +223,8 @@ namespace SwordsArt.Rooms
                 else
                     sections.Add(new Section(this, sectionObj.Bounds, zoomLevel));
             }
+
+            inkMap = new InkMap(device, width, height);
 
             GameEngine.FadeIn(FadeSpeed.Fast);
         }
