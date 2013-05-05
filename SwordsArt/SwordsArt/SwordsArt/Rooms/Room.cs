@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using TiledLib;
 using Microsoft.Xna.Framework;
+using SwordsArt.Engine;
+using SwordsArt.Interface;
+using SwordsArt.Objects;
+using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
+using SwordsArt.Helpers;
 
 namespace SwordsArt.Rooms
 {
@@ -115,24 +121,12 @@ namespace SwordsArt.Rooms
         private bool finished;
 
         private Player player;
-        private List<Portal> portals = new List<Portal>();
-        public Portal CorrectPortal;
-        public List<Portal> Portals
-        {
-            get { return portals; }
-        }
-        private List<WaveGenerator> waveGenerators = new List<WaveGenerator>();
         private List<Section> sections = new List<Section>();
-        private List<Barrier> barriers = new List<Barrier>();
         private Vector2 tilesize;
         public Vector2 Tilesize
         {
             get { return tilesize; }
         }
-
-        private MiniMap miniMap;
-
-        private Toolbar toolbar;
 
         private bool firstDraw = true;
         private bool failed;
@@ -151,8 +145,6 @@ namespace SwordsArt.Rooms
             get { return new Vector2(width - Epsilon * 2, height - Epsilon); }
         }
 
-        public RoomType Type;
-
         #endregion
 
         /// <summary>
@@ -161,26 +153,25 @@ namespace SwordsArt.Rooms
         /// <param name="color">The color of the map.</param>
         /// <param name="map">The map this room is based on.</param>
         /// <param name="gravity">The gravity of the room.</param>
-        public Room(RoomType type, Color color, Map map, GraphicsDevice device, float gravity = DEFAULT_GRAVITY)
+        public Room(Color color, Map map, GraphicsDevice device, float gravity = DEFAULT_GRAVITY)
         {
             this.color = color;
             Gravity = gravity;
             this.map = map;
-            Type = type;
             miniMapIsVisible = GameEngine.ShouldShowMinimap;
 
-            width = map.WidthInPixels();
-            height = map.HeightInPixels();
-            background = new Background(type, width, height);
+            width = map.WidthInPixels;
+            height = map.HeightInPixels;
+            background = new Background(width, height, Color.DarkGreen);
 
             /* Step 1: Load tiles from map. */
             tilesize = new Vector2(map.TileWidth, map.TileHeight);
-            Debug.Assert(Math.Abs(map.WidthInPixels() % tilesize.X) < float.Epsilon,
+            Debug.Assert(Math.Abs(map.WidthInPixels % tilesize.X) < float.Epsilon,
                          "Map doesn't divide evenly into rows of tiles.");
-            Debug.Assert(Math.Abs(map.HeightInPixels() % tilesize.Y) < float.Epsilon,
+            Debug.Assert(Math.Abs(map.HeightInPixels % tilesize.Y) < float.Epsilon,
                          "Map doesn't divide evenly into columns of tiles.");
 
-            tiles = new Tile[map.Height, map.Width];
+            tiles = new Tile[map.HeightInTiles, map.WidthInTiles];
             TileGrid grid = ((TileLayer)map.GetLayer(TILE_LAYER_NAME)).Tiles;
             for (int y = 0; y < map.Height; y++)
                 for (int x = 0; x < map.Width; x++)
@@ -194,162 +185,6 @@ namespace SwordsArt.Rooms
             /* Player */
             MapObject playerObj = map.FindObject((layer, obj) => obj.Name == PLAYER_OBJECT_NAME);
             Add(new Player(new Vector2(playerObj.Bounds.X, playerObj.Bounds.Y)));
-
-            /* Ink Generators */
-            IEnumerable<MapObject> generatorObjs = map.FindObjects((layer, obj) => obj.Type == GENERATOR_OBJECT_NAME);
-            foreach (MapObject generatorObj in generatorObjs)
-            {
-                // get all the properties of the generator from the map object
-                Property directionProperty;
-                Debug.Assert(generatorObj.Properties.TryGetValue(DIRECTION_PROPERTY_NAME, out directionProperty),
-                             "Generator with no direction.");
-                Vector2? genDirection = VectorHelper.FromDirectionString(directionProperty.RawValue);
-                Debug.Assert(genDirection != null, "Invalid direction name specified.");
-
-                float genX = genDirection.Value.X > 0 ? generatorObj.Bounds.Right : generatorObj.Bounds.Left;
-                float genY = genDirection.Value.Y < 0 ? generatorObj.Bounds.Bottom : generatorObj.Bounds.Top;
-
-                bool isWaterGenerator = false;
-                Property colorProperty;
-                Color? genColor = Color.Transparent;
-                Debug.Assert(generatorObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty),
-                             "Generator with no color.");
-                if (colorProperty.RawValue == WATER)
-                    isWaterGenerator = true;
-                else
-                {
-                    genColor = ColorHelper.FromString(colorProperty.RawValue);
-                    Debug.Assert(genColor != null, "Invalid generator color was specified.");
-                }
-
-                int genInterval = DEFAULT_GENERATOR_INTERVAL;
-                Property intervalProperty;
-                if (generatorObj.Properties.TryGetValue(INTERVAL_PROPERTY_NAME, out intervalProperty))
-                    genInterval = FloatHelper.ParseIntervalString(intervalProperty.RawValue);
-
-                float genSpeed = DEFAULT_GENERATOR_VELOCITY;
-                Property speedProperty;
-                if (generatorObj.Properties.TryGetValue(SPEED_PROPERTY_NAME, out speedProperty))
-                    genSpeed = FloatHelper.ParseSpeedString(speedProperty.RawValue);
-
-                if (!isWaterGenerator)
-                {
-                    Debug.Assert(genColor != Color.Transparent, "Invalid generator color specified.");
-                    Add(new InkGenerator(new Vector2(genX, genY), genDirection.Value, genColor.Value, genInterval,
-                                         genSpeed));
-                }
-                else
-                    Add(new WaterGenerator(new Vector2(genX, genY), genDirection.Value, genInterval, genSpeed));
-            }
-
-            /* Portals */
-            IEnumerable<MapObject> portalObjs = map.FindObjects((layer, obj) => obj.Type == PORTAL_OBJECT_NAME);
-            foreach (MapObject portalObj in portalObjs)
-            {
-                Property colorProperty;
-                Debug.Assert(portalObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty), "Portal found with no color.");
-                Color? portalColor = ColorHelper.FromString(colorProperty.RawValue);
-                Debug.Assert(portalColor != null, "Invalid portal color was specified.");
-
-                bool isCorrectPortal = false;
-                Property correctProperty;
-                if (portalObj.Properties.TryGetValue("Correct", out correctProperty))
-                    isCorrectPortal = true;
-
-                Vector2 portalPos = new Vector2(portalObj.Bounds.X, portalObj.Bounds.Y);
-                Vector2 portalSize = new Vector2(portalObj.Bounds.Width, portalObj.Bounds.Height);
-
-                Add(new Portal(Type, portalPos, portalSize, portalColor.Value, isCorrectPortal));
-            }
-
-            /* Spikes */
-            IEnumerable<MapObject> spikeObjs = map.FindObjects((layer, obj) => obj.Type == SPIKE_OBJECT_NAME);
-            foreach (MapObject spikeObj in spikeObjs)
-            {
-                Color? spikeColor = Color.White;
-                Vector2? spikeDirection;
-
-                Property colorProperty;
-                if (spikeObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty))
-                    spikeColor = ColorHelper.FromString(colorProperty.RawValue);
-                Debug.Assert(spikeColor.HasValue, "Invalid spike color specified.");
-
-                Property directionProperty;
-                Debug.Assert(spikeObj.Properties.TryGetValue(DIRECTION_PROPERTY_NAME, out directionProperty), "Spikes without direction");
-                spikeDirection = VectorHelper.FromDirectionString(directionProperty.RawValue);
-                Debug.Assert(spikeDirection.HasValue, "Invalid spike direction specified.");
-                bool alignedHorizontally = (spikeDirection.Value.X == 0);
-                bool facingLeft = (spikeDirection.Value.X < 0);
-                int numSpikes = alignedHorizontally
-                    ? (int)(spikeObj.Bounds.Width / (tilesize.X))
-                    : (int)(spikeObj.Bounds.Height / (tilesize.Y));
-
-                for (int i = facingLeft ? 1 : 0; i < (facingLeft ? numSpikes : numSpikes - 1); i++)
-                {
-                    spikes.Add(new Spike(alignedHorizontally
-                        ? new Vector2(spikeObj.Bounds.X + i * tilesize.X, spikeObj.Bounds.Y)
-                        : new Vector2(spikeObj.Bounds.X, spikeObj.Bounds.Y + i * tilesize.Y),
-                        new Vector2(tilesize.X * 2, tilesize.Y), spikeColor.Value, spikeDirection.Value));
-                }
-            }
-
-            /* Waves */
-            IEnumerable<MapObject> waveObjs = map.FindObjects((layer, obj) => obj.Type == WAVE_OBJECT_NAME);
-            foreach (MapObject waveObj in waveObjs)
-            {
-                Property colorProperty;
-                Color? waveColor = Color.White;
-                bool isWater = false;
-                Debug.Assert(waveObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty), "Found a wave with no color.");
-
-                if (colorProperty.RawValue == WATER)
-                    isWater = true;
-                else
-                {
-                    waveColor = ColorHelper.FromString(colorProperty.RawValue);
-                    Debug.Assert(waveColor.HasValue, "Invalid wave color specified.");
-                }
-
-                Property directionProperty;
-                Vector2? direction = new Vector2(1, 0);
-                if (waveObj.Properties.TryGetValue(DIRECTION_PROPERTY_NAME, out directionProperty))
-                {
-                    direction = VectorHelper.FromDirectionString(directionProperty.RawValue);
-                }
-
-                Add(new WaveGenerator(new Vector2(waveObj.Bounds.X, waveObj.Bounds.Y + (1f / 2f) * waveObj.Bounds.Height),
-                    new Vector2(waveObj.Bounds.Width, waveObj.Bounds.Height * 1f / 2f),
-                    direction.Value.X < 0, isWater ? Color.LightBlue : waveColor.Value,
-                    isWater));
-            }
-
-            /* Spouts */
-            IEnumerable<MapObject> spoutObjs = map.FindObjects((layer, obj) => obj.Type == "Spout");
-            foreach (MapObject spoutObj in spoutObjs)
-            {
-                bool isWater = false;
-                Color? spoutColor;
-                Property colorProperty;
-                Debug.Assert(spoutObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty), "Spout has no color.");
-                if (colorProperty.RawValue == "Water")
-                {
-                    spoutColor = Color.LightBlue;
-                    isWater = true;
-                }
-                else
-                {
-                    spoutColor = ColorHelper.FromString(colorProperty.RawValue);
-                }
-                Debug.Assert(spoutColor.HasValue, "Invalid color specified for spout.");
-
-                Vector2? spoutDirection;
-                Property directionProperty;
-                Debug.Assert(spoutObj.Properties.TryGetValue(DIRECTION_PROPERTY_NAME, out directionProperty), "Spout has no direction.");
-                spoutDirection = VectorHelper.FromDirectionString(directionProperty.RawValue);
-                Debug.Assert(spoutDirection.HasValue, "Invalid direction specified for spout.");
-
-                Add(new SpoutGenerator(new Vector2(spoutObj.Bounds.X, spoutObj.Bounds.Y), spoutDirection.Value, spoutColor.Value, isWater));
-            }
 
             /* Sections */
             IEnumerable<MapObject> sectionObjs = map.FindObjects((layer, obj) => obj.Type == SECTION_OBJECT_NAME);
@@ -387,42 +222,6 @@ namespace SwordsArt.Rooms
                     sections.Add(new Section(this, sectionObj.Bounds, zoomLevel));
             }
 
-            IEnumerable<MapObject> barrierObjs = Map.FindObjects((layer, obj) => obj.Type == "Barrier");
-            foreach (MapObject barrierObj in barrierObjs)
-            {
-                Property colorProperty;
-                Color? barrierColor;
-                Debug.Assert(barrierObj.Properties.TryGetValue(COLOR_PROPERTY_NAME, out colorProperty), "No color specified for barrier.");
-                barrierColor = ColorHelper.FromString(colorProperty.RawValue);
-                Debug.Assert(barrierColor.HasValue, "Invalid color specified for barrier.");
-
-                Property directionProperty;
-                Vector2? barrierDirection;
-                Debug.Assert(barrierObj.Properties.TryGetValue(DIRECTION_PROPERTY_NAME, out directionProperty), "No direction specified for barrier.");
-                barrierDirection = VectorHelper.FromDirectionString(directionProperty.RawValue);
-                Debug.Assert(barrierDirection.HasValue, "Invalid direction specified for barrier.");
-
-                Vector2 barrierPos = new Vector2(barrierObj.Bounds.X, barrierObj.Bounds.Y);
-                Vector2 barrierSize = new Vector2(barrierObj.Bounds.Width, barrierObj.Bounds.Height);
-                Add(new Barrier(barrierPos, barrierSize, barrierDirection.Value, barrierColor.Value));
-
-                Vector2 tilespan = GetTilespan(barrierPos, barrierSize);
-                Vector2 startPos = GetTileIndexByPixel(barrierPos);
-                for (int y = (int)startPos.Y; y < startPos.Y + tilespan.Y; y++)
-                    for (int x = (int)startPos.X; x < startPos.X + tilespan.X; x++)
-                    {
-                        tiles[y, x] = new Tile(new Vector2(x * tilesize.X, y * tilesize.Y), tilesize, TileType.Solid, barrierColor.Value);
-                    }
-            }
-            inkMap = new InkMap(device, width, height);
-            miniMap = new MiniMap(this, new Vector2(device.Viewport.Width - MINIMAP_X_OFFSET, 0 + MINIMAP_Y_OFFSET));
-
-            toolbar = new Toolbar(new Vector2(device.Viewport.Width - TOOLBAR_X_OFFSET, 0 + TOOLBAR_Y_OFFSET),
-                new Vector2(TOOLBAR_ICONSIZE_X, TOOLBAR_ICONSIZE_Y), new List<Texture2D>
-                    {
-                        ResourceManager.GetTexture("Misc_Navigation"),
-                        ResourceManager.GetTexture("Misc_Reset")
-                    }, Orientation.Vertical);
             GameEngine.FadeIn(FadeSpeed.Fast);
         }
 
@@ -456,7 +255,7 @@ namespace SwordsArt.Rooms
         {
             if (ShouldPlayMusic)
             {
-                ResourceManager.PlaySong(GameEngine.GetTypeName(Type));
+                // TODO: Play music
                 ShouldPlayMusic = false;
             }
             // Add and remove any buffered objects.
@@ -673,14 +472,7 @@ namespace SwordsArt.Rooms
             background.Draw(spriteBatch);
 
             map.Draw(spriteBatch);
-            inkMap.Draw(spriteBatch);
-
-            foreach (InkGenerator generator in generators)
-                generator.Draw(spriteBatch);
-            foreach (Portal portal in portals)
-                portal.Draw(spriteBatch);
-            foreach (Barrier barrier in barriers)
-                barrier.Draw(spriteBatch);
+            
             if (!Failed) player.Draw(spriteBatch);
             foreach (InkBlob blob in blobs)
                 blob.Draw(spriteBatch);
@@ -723,38 +515,7 @@ namespace SwordsArt.Rooms
                     camera = new Camera(player, width, height, zoomLevel);
                     miniMap.Mappings.Add(obj, ResourceManager.GetTexture("Player_Icon"));
                 }
-                else if (obj is Portal)
-                {
-                    portals.Add((Portal)obj);
-                    if (toAdd.FindAll((_obj) => _obj is Portal).Count == 1)
-                    {
-                        CorrectPortal = (Portal)obj;
-                        miniMap.Mappings.Add(obj, ResourceManager.GetTexture("Portal_Icon"));
-                    }
-                    else if ((toAdd.Find((_obj) => _obj is Portal && ((Portal)_obj).IsCorrect) != null))
-                    {
-                        if (!((Portal)obj).IsCorrect)
-                            miniMap.Mappings.Add(obj, ResourceManager.GetTexture("Portal_Icon"));
-                        else
-                            CorrectPortal = (Portal)obj;
-                    }
-                    else
-                        throw new InvalidOperationException("Multiple portals but no correct portal specified.");
-
                 }
-                else if (obj is InkGenerator)
-                {
-                    generators.Add((InkGenerator)obj);
-                    miniMap.Mappings.Add(obj, ResourceManager.GetTexture("Generator_Icon"));
-                }
-                else if (obj is InkBlob)
-                    blobs.Add((InkBlob)obj);
-                else if (obj is WaveGenerator)
-                    waveGenerators.Add((WaveGenerator)obj);
-                else if (obj is Wave)
-                    waves.Add((Wave)obj);
-                else if (obj is SpoutGenerator)
-                    spoutGenerators.Add((SpoutGenerator)obj);
                 else if (obj is Spout)
                     spouts.Add((Spout)obj);
                 else if (obj is Barrier)

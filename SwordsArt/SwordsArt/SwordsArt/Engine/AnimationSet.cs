@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace SwordsArt.Rooms
+namespace SwordsArt.Engine
 {
     /// <summary>
     /// Collection of frames into an animation.
