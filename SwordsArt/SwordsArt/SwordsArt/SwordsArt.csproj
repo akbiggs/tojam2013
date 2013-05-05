@@ -108,9 +108,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Camera.cs" />
+    <Compile Include="Helpers\FloatHelper.cs" />
+    <Compile Include="Interface\Credits.cs" />
     <Compile Include="Engine\GameEngine.cs" />
+    <Compile Include="Interface\Menus\GameMenu.cs" />
     <Compile Include="Engine\Input.cs" />
+    <Compile Include="Interface\Intro.cs" />
     <Compile Include="Engine\ResourceManager.cs" />
+    <Compile Include="Interface\Menus\MainMenu.cs" />
+    <Compile Include="Interface\Menus\Menu.cs" />
+    <Compile Include="Interface\TitleScreen.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\ListHelper.cs" />
     <Compile Include="Helpers\MapHelper.cs" />
@@ -124,8 +131,10 @@
     <Compile Include="Interface\Dialogue.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="Engine\IController.cs" />
+    <Compile Include="Engine\InkMap.cs" />
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="Rooms\Section.cs" />
+    <Compile Include="Objects\Splatter.cs" />
     <Compile Include="Rooms\Tile.cs" />
   </ItemGroup>
   <ItemGroup>

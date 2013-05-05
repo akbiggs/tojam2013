@@ -3,29 +3,59 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SwordsArt.Engine;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SwordsArt.Interface
 {
+    /// <summary>
+    /// The intro of the game.
+    /// </summary>
     public class Intro : IController
     {
-        public void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        bool finished = false;
+        SpriteFont font;
+        Texture2D logo;
+
+        /// <summary>
+        /// Make a new intro.
+        /// </summary>
+        public Intro()
         {
-            throw new NotImplementedException();
+
         }
 
-        public void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+        public void Initialize()
         {
-            throw new NotImplementedException();
+
         }
 
-        public bool Finished
+        /// <summary>
+        /// Play the intro of the game.
+        /// </summary>
+        internal void Play()
         {
-            get { throw new NotImplementedException(); }
+            // TODO: Implement intro.
+            Finish();
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+        }
+
+        public virtual bool Finished
+        {
+            get { return finished; }
         }
 
         public void Finish()
         {
-            throw new NotImplementedException();
+            GameEngine.FadeOut(Color.White, FadeSpeed.Fast);
+            finished = true;
+        }
+
+        public void Update(GameTime gameTime)
+        {
         }
     }
 }

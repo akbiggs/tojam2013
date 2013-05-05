@@ -503,7 +503,7 @@ namespace SwordsArt.Rooms
             if (collidable)
             {
                 done = false;
-                for (var x = (int)curTileIndex.X; x < map.Width; x++)
+                for (var x = (int)curTileIndex.X; x < map.WidthInTiles; x++)
                 {
                     for (var y = (int)curTileIndex.Y; y <= curTileIndex.Y + tilespan.Y; y++)
                         if (tiles[y, x].Type == TileType.Solid && !(tiles[y, x].Color != Color.White && tiles[y, x].Color == color))
@@ -521,7 +521,7 @@ namespace SwordsArt.Rooms
             float boundY = StageBounds.Y - size.Y - 10;
             done = false;
             if (collidable)
-                for (var y = (int)curTileIndex.Y; y < map.Height; y++)
+                for (var y = (int)curTileIndex.Y; y < map.HeightInTiles; y++)
                 {
                     for (var x = (int)curTileIndex.X; x <= curTileIndex.X + tilespan.X; x++)
                         if ((tiles[y, x].Type == TileType.Solid ||
@@ -561,8 +561,8 @@ namespace SwordsArt.Rooms
 
         public bool WallAtIndex(int col, int row)
         {
-            Debug.Assert(0 <= col && col < map.Height, "Column out of range.");
-            Debug.Assert(0 <= row && row < map.Width, "Row out of range.");
+            Debug.Assert(0 <= col && col < map.HeightInTiles, "Column out of range.");
+            Debug.Assert(0 <= row && row < map.WidthInTiles, "Row out of range.");
             return GetTileByPixel(new Vector2(row * tilesize.X, col * tilesize.Y)).Type == TileType.Solid;
         }
 
@@ -656,11 +656,6 @@ namespace SwordsArt.Rooms
                     deepestSection = section;
 
             return deepestSection;
-        }
-
-        public bool CanHaveMoreBlobs()
-        {
-            return blobs.Count < MAX_NUM_BLOBS;
         }
 
         public Predicate<GameObject> _obj { get; set; }

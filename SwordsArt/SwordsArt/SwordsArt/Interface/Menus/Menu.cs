@@ -12,7 +12,7 @@ namespace SwordsArt.Interface
     /// Basic generic menu.
     /// Offers options to player, waits for them to select one.
     /// </summary>
-    public class Menu
+    public class Menu : IController
     {
         List<String> options;
         String exitOption;
@@ -35,6 +35,21 @@ namespace SwordsArt.Interface
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
+        }
+
+        public virtual void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Finished
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Finish()
+        {
+            throw new NotImplementedException();
         }
     }
 }
