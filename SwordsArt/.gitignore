@@ -1,0 +1,11 @@
+# Common files to ignore
+*.swp
+*.zip
+*.suo
+*.user
+SwordsArt/SwordsArt/bin
+SwordsArt/SwordsArtContent/bin
+SwordsArt/SwordsArt/obj
+SwordsArt/SwordsArtContent/obj
+*.cachefile
+*.ccgame
