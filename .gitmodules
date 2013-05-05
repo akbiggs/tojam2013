@@ -1,0 +1,3 @@
+[submodule "WickedEngine"]
+	path = WickedEngine
+	url = git://github.com/Wydra/WickedEngine.git
